@@ -1,0 +1,359 @@
+package partOfGame;
+
+import playable.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Random;
+import java.util.Scanner;
+
+public class Player {
+    private final Saveable saveHandler;  // Зависимость от интерфейса, а не от Game
+
+    private static final Logger logger = LogManager.getLogger(Player.class);
+
+    protected int points = 0;
+    protected ArrayList<MyCharacter> heroes = new ArrayList<>();
+    protected ArrayList<MyCharacter> units = new ArrayList<>();
+    protected int money = 0;
+    protected Map map;
+    protected int[] castlePosition = {0, 0};
+
+    public Player(Saveable saveHandler) {
+        Crusader crusader = new Crusader(0, 0);
+        heroes.add(crusader);
+        this.map = map;
+        map.addCharacter(crusader, crusader.getX(), crusader.getY());
+        this.saveHandler = saveHandler;
+    }
+
+    public Player(MyCharacter hero1, Map map, Saveable saveHandler) {
+        heroes.add(hero1);
+        this.map = map;
+        map.addCharacter(hero1, hero1.getX(), hero1.getY());
+        this.saveHandler = saveHandler;
+    }
+
+    public ArrayList<MyCharacter> getHeroes() {
+        return heroes;
+    }
+
+    public ArrayList<MyCharacter> getUnits() {
+        return units;
+    }
+
+    public void addMoney(int money) {
+        this.money += money;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public int[] getCastlePosition() {
+        return castlePosition;
+    }
+
+    public void setCastlePosition(int[] castlePosition) {
+        this.castlePosition = castlePosition;
+    }
+
+    public void increasePoints() {
+        this.points += 1;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public int makeMove(int moves) {
+        int movesToReturn = 1;
+
+        System.out.println("Type what do you want to do:\n 1 - go to any point \n 2 - inspect any point " +
+                "\n 3 - buy units \n 4 - count Army \n 5 - buy hero \n 6 - buy horse house " +
+                "\n 7 - try to dig the Holy Grail \n 8 - save the game \n -1 - have a rest");
+
+        try {
+            Scanner scanner = new Scanner(System.in);
+            int decision = scanner.nextInt();
+            switch (decision) {
+                case 1:
+                    goToPoint();
+                    break;
+                case 2:
+                    inspect();
+                    break;
+                case 3:
+                    buyUnits();
+                    break;
+                case 4:
+                    countArmy();
+                    break;
+                case 5:
+                    buyHero();
+                    break;
+                case 6:
+                    buyHorseHouse();
+                    break;
+                case 7:
+                    movesToReturn = digTheHolyGrail(moves);
+                    break;
+                case 8:
+                    saveHandler.saveGame();
+                    break;
+                default:
+                    System.out.println("what a wonderful day is today! You have " + money + " gold");
+                    break;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("I dont understand you my majesty");
+        } finally {
+            map.updateMap();
+        }
+        prayToGod(this, castlePosition);
+        return movesToReturn;
+    }
+
+    private void goToPoint() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Which playable.character you want to move?");
+        for (int i = 0; i < heroes.size(); i++) {
+            System.out.println(i + " " + heroes.get(i).getType() + " at point " + heroes.get(i).getX() + "," + heroes.get(i).getY());
+        }
+        try {
+            int personCnt = scanner.nextInt();
+
+            System.out.println("Type a place you want to go (type by enter)");
+            int x = scanner.nextInt();
+            int y = scanner.nextInt();
+
+            money += map.moveCharacterStraight(heroes.get(personCnt), x, y);
+
+        } catch (InputMismatchException e) {
+            System.out.println("I dont understand you my majesty");
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("We havent this hero my majesty");
+        }
+    }
+
+    protected void prayToGod(Player player, int[] castlePosition) {
+        //проверим держит ли кто-то грааль
+        MyCharacter hero = null;
+        for (int i = 0; i < player.heroes.size(); i++) {
+            if (player.heroes.get(i).getHoldsTheGrail()) {
+                if (player.heroes.get(i).getX() == castlePosition[0] && player.heroes.get(i).getY() == castlePosition[1]) {
+                    System.out.println(player.heroes.get(i).getType() + " brought the grail to the altar of his castle. " +
+                            "Now all army of this castle is blessed");
+                    player.heroes.get(i).setHoldsTheGrail(false);
+                    player.heroes.get(i).setSpeed(player.heroes.get(i).getSpeed() * 2);
+                    for (int j = 0; j < player.heroes.size(); j++) {
+                        for (int k = 0; k < player.heroes.get(j).getUnits().size(); k++) {
+                            player.heroes.get(j).getUnits().get(k).increaseDamage(100);
+                            player.heroes.get(j).getUnits().get(k).increaseHP(100);
+                        }
+                    }
+                } else {
+                    hero = player.heroes.get(i);
+                }
+            }
+        }
+        if (hero == null) {
+            return;
+        }
+
+        System.out.println();
+        System.out.println(hero.getType() + " is Praying to God\n");
+
+        Random random = new Random();
+        double chance = 0.5; // 30% вероятность
+
+        // Генерация случайного числа от 0.0 (включительно) до 1.0 (исключительно)
+        double randomValue = random.nextDouble();
+
+        if (randomValue < chance) {
+            System.out.println("The prayer was successful. God favors the army of " + hero.getType());
+            randomValue = random.nextDouble();
+            if (randomValue < chance) {
+                System.out.println("Units now are Healthier!\n");
+                logger.info("Молитва удалась и юниты героя стали здоровее");
+                for (int i = 0; i < hero.getUnits().size(); i++) {
+                    hero.getUnits().get(i).increaseHP(10);
+                }
+            } else {
+                System.out.println("Units now are Stronger!\n");
+                logger.info("Молитва удалась и юниты героя стали сильнее");
+                for (int i = 0; i < hero.getUnits().size(); i++) {
+                    hero.getUnits().get(i).increaseDamage(10);
+                }
+            }
+        } else {
+            System.out.println("The prayer failed. God is angry with the army of " + hero.getType());
+            System.out.println();
+            logger.error("Молитва игрока не удалась и его герой в страхе делает шаг от замка!");
+
+            int dx = hero.getX() > castlePosition[0] ? 1 : -1;
+            int dy = hero.getY() > castlePosition[1] ? 1 : -1;
+
+            money += map.moveCharacterStraight(hero, hero.getX() + dx, hero.getY() + dy);
+            map.updateMap();
+        }
+    }
+
+    private void inspect() {
+        System.out.println("Type a place you want to inspect");
+        Scanner scanner = new Scanner(System.in);
+        int x = scanner.nextInt();
+        int y = scanner.nextInt();
+        try {
+            if (map.getCharacters()[x][y] != null) {
+                System.out.println(map.getCharacters()[x][y].getType());
+            } else {
+                System.out.println(map.getObjects()[x][y].getType());
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("I dont understand you my majesty");
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("We havent this hero my majesty");
+        }
+    }
+
+    private void buyUnits() {
+        int heroToBuyUnits = 0;
+        boolean heroAtCastle = false;
+        for (int i = 0; i < heroes.size(); i++) {
+            if (heroes.get(i).getX() == castlePosition[0] && heroes.get(i).getY() == castlePosition[1]) {
+                shopUnits(heroes.get(i));
+                heroAtCastle = true;
+            }
+        }
+        if (!heroAtCastle) {
+            System.out.println("One of your heroes must be at placable.castle my majesty");
+        }
+    }
+
+    private void countArmy() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Army of which hero you want to see my majesty?");
+        for (int i = 0; i < heroes.size(); i++) {
+            System.out.println(i + " " + heroes.get(i).getType() + " at point " + heroes.get(i).getX() + "," + heroes.get(i).getY());
+        }
+        try {
+            int personCnt = scanner.nextInt();
+            if (heroes.get(personCnt).getUnits().size() == 0) {
+                System.out.println("this hero doesnt has army yet");
+                return;
+            }
+
+            for (int i = 0; i < heroes.get(personCnt).getUnits().size(); i++) {
+                System.out.println(i + " " + heroes.get(personCnt).getUnits().get(i).getType() +
+                        " HP: " + heroes.get(personCnt).getUnits().get(i).getHP() +
+                        " Damage: " + heroes.get(personCnt).getUnits().get(i).getDamage() +
+                        " at point " + heroes.get(personCnt).getUnits().get(i).getX() +
+                        "," + heroes.get(personCnt).getUnits().get(i).getY());
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("I dont understand you my majesty");
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("We havent this hero my majesty");
+        }
+    }
+
+    private void shopUnits(MyCharacter hero) {
+        System.out.println("what unit you want to buy:\n 1 - archer: 150 gold \n 2 - viking: 100 gold \n 3 - healer: 200 gold");
+        try {
+            Scanner scanner = new Scanner(System.in);
+            int decision = scanner.nextInt();
+
+            switch (decision) {
+                case 2:
+                    if (money < 100) {
+                        System.out.println("we have not enough gold!");
+                        break;
+                    }
+                    money -= 100;
+                    Viking viking = new Viking(units.size() / 15, units.size() % 15);
+                    units.add(viking);
+                    hero.addUnits(viking);
+                    break;
+                case 3:
+                    if (money < 200) {
+                        System.out.println("we have not enough gold!");
+                        break;
+                    }
+                    money -= 200;
+                    Healer healer = new Healer(units.size() / 15, units.size() % 15);
+                    units.add(healer);
+                    hero.addUnits(healer);
+                    break;
+                default:
+                    if (money < 150) {
+                        System.out.println("we have not enough gold!");
+                        break;
+                    }
+                    money -= 150;
+                    Archer archer = new Archer(units.size() / 15, units.size() % 15);
+                    units.add(archer);
+                    hero.addUnits(archer);
+                    break;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("I dont understand you my majesty");
+        }
+    }
+
+    private void buyHero() {
+        if (money > 500 && map.getCharacters()[castlePosition[0]][castlePosition[1]] == null) {
+            Crusader hero = new Crusader(0, 0);
+            heroes.add(hero);
+            map.addCharacter(hero, hero.getX(), hero.getY());
+        } else {
+            System.out.println("you have not enough money or placable.castle already has a hero");
+        }
+    }
+
+    private void buyHorseHouse() {
+        if (money > 500) {
+            for (int i = 0; i < heroes.size(); i++) {
+                if (heroes.get(i).getX() == castlePosition[0] && heroes.get(i).getY() == castlePosition[1]) {
+                    for (int j = 0; j < heroes.size(); j++) {
+                        heroes.get(j).addHorse();
+                        System.out.println(heroes.get(i).getType() + " has speed of " + heroes.get(i).getSpeed());
+                    }
+                    return;
+                }
+                System.out.println("One of heroes must be at placable.castle");
+            }
+        } else {
+            System.out.println("you have not enough");
+        }
+    }
+
+    private int digTheHolyGrail(int moves) {
+        if (moves < 2) {
+            System.out.println("We dont have enough time to dig out a grail, my majesty!");
+            logger.warn("Раскопка грааля не удалась: не достаточно ходов для начала раскопок");
+            return 1;
+        }
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("which hero is the chosen one to atempt himself in finding the Holy Grail, my majesty?");
+        for (int i = 0; i < heroes.size(); i++) {
+            System.out.println(i + " " + heroes.get(i).getType() + " at point " + heroes.get(i).getX() + "," + heroes.get(i).getY());
+        }
+        try {
+            int personCnt = scanner.nextInt();
+            return map.digTheGrail(heroes.get(personCnt));
+
+        } catch (InputMismatchException e) {
+            System.out.println("I dont understand you my majesty");
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("We havent this hero my majesty");
+        }
+        return 1;
+    }
+
+
+}
