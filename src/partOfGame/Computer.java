@@ -8,7 +8,7 @@ import java.util.Random;
 public class Computer extends Player {
     private int phase = 0;
 
-    final private Random random = new Random(5);
+    transient final private Random random = new Random(5);
 
     //конструкторы
     public Computer(MyCharacter hero1, Map map) {

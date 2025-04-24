@@ -1,20 +1,31 @@
 package partOfGame;
 
+import com.google.gson.annotations.Expose;
 import placable.*;
 import playable.*;
 
 import java.io.*;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Game implements Saveable{
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+public class Game implements Saveable, Serializable{
+
     final int pointsToWin = 1;
-    final int MoneyForUnit = 50;
+
+    final transient int MoneyForUnit = 50;
     final int MoneyForHero = 150;
     private Map map;
+
     private Player me;
     private Computer computer;
     private String name = "";
+
+    private int mapType=0;
 
 
     public Game(Map map, Player me, Computer computer) {
@@ -22,6 +33,58 @@ public class Game implements Saveable{
         this.map = map;
         this.me = me;
     }
+
+    public void setMe(Player me) {
+        this.me = me;
+    }
+    public Player getMe(){
+        return me;
+    }
+
+    public int getPointsToWin() {
+        return pointsToWin;
+    }
+
+    public int getMoneyForUnit() {
+        return MoneyForUnit;
+    }
+
+    public int getMoneyForHero() {
+        return MoneyForHero;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public void setMap(Map map) {
+        this.map = map;
+    }
+
+    public Computer getComputer() {
+        return computer;
+    }
+
+    public void setComputer(Computer computer) {
+        this.computer = computer;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getMapType() {
+        return mapType;
+    }
+
+    public void setMapType(int mapType) {
+        this.mapType = mapType;
+    }
+
     public Game(){}
 
     public int Play() {
@@ -31,6 +94,7 @@ public class Game implements Saveable{
 
         switch (decision) {
             case 1:
+                mapType=0;
                 break;
             case 2:
                 loadCustomMap();
@@ -50,8 +114,7 @@ public class Game implements Saveable{
             case 1:
                 break;
             case 2:
-                loadGame();
-                break;
+
         }
 
         this.map.updateMap();
@@ -268,6 +331,7 @@ public class Game implements Saveable{
 
             Scanner scanner = new Scanner(System.in);
             int mapNum = scanner.nextInt();
+            mapType=mapNum; // запоминаем номер используемой карты для сохранения
             String mapObjects = "";
             String mapParams = "";
             raf.seek(0);
@@ -336,12 +400,22 @@ public class Game implements Saveable{
         }
     }
 
-    private void loadGame() {
+    public void loadGame() {
 
     }
 
     @Override
     public void saveGame() {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create();
+        String json = gson.toJson(this.me);
+        try (FileWriter writer = new FileWriter("Save.txt", true)) {
+            writer.write(json);
+        } catch (IOException ex) {
+
+            System.out.println(ex.getMessage());
+        }
         System.out.println("Game is saved!");
     }
 }

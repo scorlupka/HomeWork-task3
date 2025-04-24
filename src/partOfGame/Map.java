@@ -17,7 +17,7 @@ public class Map {
     final private int height;
     private MyCharacter[][] characters;
     private MyObject[][] objects;
-    final private Random random;
+    final private transient Random random;
 
     //конструктор
     public Map(MyObject[][] objects, int width, int height, int seed){

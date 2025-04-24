@@ -1,10 +1,9 @@
 package playable;
 
-import jdk.jfr.StackTrace;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Crusader extends MyCharacter implements Hero {
+public class Crusader extends MyCharacter implements Hero, Serializable {
     private ArrayList<MyCharacter> units = new ArrayList<>();
 
     public Crusader(int x, int y) {

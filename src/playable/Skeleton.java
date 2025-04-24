@@ -1,8 +1,9 @@
 package playable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Skeleton extends MyCharacter implements Hero {
+public class Skeleton extends MyCharacter implements Hero, Serializable {
     private ArrayList<MyCharacter> units = new ArrayList<>();
 
     public Skeleton(int x, int y) {

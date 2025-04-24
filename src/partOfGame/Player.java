@@ -5,22 +5,39 @@ import playable.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Player {
-    private final Saveable saveHandler;  // Зависимость от интерфейса, а не от Game
+public class Player implements Serializable {
+    transient Saveable saveHandler;  // Не сохраняется
 
-    private static final Logger logger = LogManager.getLogger(Player.class);
+    transient static final Logger logger = LogManager.getLogger(Player.class);  // static не сохраняется
+
+
 
     protected int points = 0;
-    protected ArrayList<MyCharacter> heroes = new ArrayList<>();
+
+
+
+    ArrayList<MyCharacter> heroes = new ArrayList<>();
+
+
+
     protected ArrayList<MyCharacter> units = new ArrayList<>();
+
+
     protected int money = 0;
-    protected Map map;
+
+    transient Map map;  // Не сохраняется
+
+
+
     protected int[] castlePosition = {0, 0};
+
+    transient Random random = new Random();  // Не сохраняется
 
     public Player(Saveable saveHandler) {
         Crusader crusader = new Crusader(0, 0);
@@ -40,9 +57,43 @@ public class Player {
     public ArrayList<MyCharacter> getHeroes() {
         return heroes;
     }
+    public void setHeroes(ArrayList<MyCharacter> heroes){this.heroes = heroes;}
+
+    public Saveable getSaveHandler() {
+        return saveHandler;
+    }
+
+    public void setSaveHandler(Saveable saveHandler) {
+        this.saveHandler = saveHandler;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
+    public Map getMap() {
+        return map;
+    }
+
+    public Random getRandom() {
+        return random;
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
 
     public ArrayList<MyCharacter> getUnits() {
         return units;
+    }
+    public void setUnits(ArrayList<MyCharacter> units){this.units = units;}
+
+    public void setMap(Map map) {
+        this.map = map;
     }
 
     public void addMoney(int money) {
@@ -167,7 +218,6 @@ public class Player {
         System.out.println();
         System.out.println(hero.getType() + " is Praying to God\n");
 
-        Random random = new Random();
         double chance = 0.5; // 30% вероятность
 
         // Генерация случайного числа от 0.0 (включительно) до 1.0 (исключительно)

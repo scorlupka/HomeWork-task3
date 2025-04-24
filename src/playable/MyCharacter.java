@@ -2,9 +2,11 @@ package playable;
 
 import placable.MyObjectTypes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public abstract class MyCharacter {
+public abstract class MyCharacter implements Serializable {
 
     protected boolean holdsTheGrail = false;
     protected boolean isEvil;
@@ -30,6 +32,34 @@ public abstract class MyCharacter {
     public int getHP() {
 
         return HP;
+    }
+
+    public boolean isHoldsTheGrail() {
+        return holdsTheGrail;
+    }
+
+    public boolean isEvil() {
+        return isEvil;
+    }
+
+    public void setEvil(boolean evil) {
+        isEvil = evil;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void setType(MyCharacterTypes type) {
+        this.type = type;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
     }
 
     public void increaseHP(int hp) {
