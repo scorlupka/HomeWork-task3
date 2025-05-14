@@ -30,6 +30,7 @@ public class MapObjectsTest {
 
     @Test
     public void CollectCoinTest(){
+        crusader.setX(2);
         systemInMock.provideLines("1","0","3","2");
         assertEquals(map.getObjects()[2][1].getType(), MyObjectTypes.COIN);
         me.makeMove(1);
@@ -49,27 +50,25 @@ public class MapObjectsTest {
 
     @Test
     public void NotAbleToCrossTheWallTest(){
-        systemInMock.provideLines("1","0","0","4","1","0","5","4");
+        systemInMock.provideLines("1","0","0","7","1","0","4","7");
         me.makeMove(1);
-        assertEquals(map.getCharacters()[0][4], crusader);
-        assertArrayEquals(new int[]{crusader.getX(),crusader.getY()},new int[]{0,4});
+        assertEquals(map.getCharacters()[0][7], crusader);
+        assertArrayEquals(new int[]{crusader.getX(),crusader.getY()},new int[]{0,7});
 
         me.makeMove(1);
-        assertNotEquals(map.getCharacters()[5][4], crusader);
-        assertArrayEquals(new int[]{crusader.getX(),crusader.getY()},new int[]{2,4});
+        assertNotEquals(map.getCharacters()[4][7], crusader);
+        assertArrayEquals(new int[]{crusader.getX(),crusader.getY()},new int[]{2,7});
     }
 
     @Test
     public void MovementPenaltyTest(){
         crusader.setSpeed(5);
-        systemInMock.provideLines("1","0","19","0","1","0","9","0");
-        me.makeMove(1);
-        assertEquals(map.getCharacters()[5][0], crusader);
-        assertArrayEquals(new int[]{crusader.getX(),crusader.getY()},new int[]{5,0});
+        crusader.setX(12);
+        systemInMock.provideLines("1","0","19","0");
 
         me.makeMove(1);
-        assertEquals(map.getCharacters()[8][0], crusader);
-        assertArrayEquals(new int[]{crusader.getX(),crusader.getY()},new int[]{8,0});
+        assertEquals(map.getCharacters()[15][0], crusader);
+        assertArrayEquals(new int[]{crusader.getX(),crusader.getY()},new int[]{15,0});
     }
 
 }

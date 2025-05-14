@@ -5,8 +5,9 @@ import placable.*;
 import playable.*;
 
 import java.io.*;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -17,8 +18,12 @@ public class Game implements Saveable, Serializable{
 
     final int pointsToWin = 1;
 
-    final transient int MoneyForUnit = 50;
+     final int MoneyForUnit = 50;
     final int MoneyForHero = 150;
+
+    final int PointsForUnit = 2;
+    final int PointsForHero = 10;
+    final int PointsForMoney = 1;
     private Map map;
 
     private Player me;
@@ -26,12 +31,22 @@ public class Game implements Saveable, Serializable{
     private String name = "";
 
     private int mapType=0;
+    private int gamePoint;
 
 
     public Game(Map map, Player me, Computer computer) {
         this.computer = computer;
         this.map = map;
         this.me = me;
+        gamePoint=0;
+    }
+
+    public int getGamePoint() {
+        return gamePoint;
+    }
+
+    public void setGamePoint(int gamePoint) {
+        this.gamePoint = gamePoint;
     }
 
     public void setMe(Player me) {
@@ -88,34 +103,6 @@ public class Game implements Saveable, Serializable{
     public Game(){}
 
     public int Play() {
-        System.out.println("Heroes of IU3\n1 - Play with regular maps\n2 - Play - with custom maps\n3 - create new map");
-        Scanner scanner = new Scanner(System.in);
-        int decision = scanner.nextInt();
-
-        switch (decision) {
-            case 1:
-                mapType=0;
-                break;
-            case 2:
-                loadCustomMap();
-                break;
-            case 3:
-                createNewMap();
-                return 0;
-        }
-
-        scanner.nextLine();
-        System.out.println("Enter your name");
-        this.name = scanner.nextLine();
-        System.out.println(this.name);
-        System.out.println("1 - new game\n2 - load game");
-        decision = scanner.nextInt();
-        switch (decision) {
-            case 1:
-                break;
-            case 2:
-
-        }
 
         this.map.updateMap();
         while (true) {
@@ -172,6 +159,9 @@ public class Game implements Saveable, Serializable{
             if (player.getHeroes().get(i).getHP() <= 0) {
                 if (player.getHeroes().get(i).getUnits().size() > 0) {
                     other.addMoney(player.getHeroes().get(i).getUnits().size() * MoneyForUnit + MoneyForHero);
+                    if(player == computer){
+                        gamePoint+=player.getHeroes().get(i).getUnits().size() * PointsForUnit + PointsForHero;
+                    }
                 }
                 player.getHeroes().remove(i);
             }
@@ -192,7 +182,7 @@ public class Game implements Saveable, Serializable{
         }
     }
 
-    private double Distance(MyCharacter character1, int[] castle) {
+    public static double Distance(MyCharacter character1, int[] castle) {
         int x1 = character1.getX();
         int y1 = character1.getY();
 
@@ -400,22 +390,49 @@ public class Game implements Saveable, Serializable{
         }
     }
 
-    public void loadGame() {
-
-    }
-
     @Override
     public void saveGame() {
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
-        String json = gson.toJson(this.me);
-        try (FileWriter writer = new FileWriter("Save.txt", true)) {
-            writer.write(json);
-        } catch (IOException ex) {
+        Path savesPath = Paths.get("Saves", name); // Saves/Pavel
 
-            System.out.println(ex.getMessage());
+        try {
+            Files.createDirectories(savesPath); // Создаст все папки в пути
+        } catch (IOException e) {
+            System.err.println("Ошибка при создании папки: " + e.getMessage());
         }
-        System.out.println("Game is saved!");
+
+        try (FileOutputStream outputStream = new FileOutputStream("Saves"+ File.separator + name+ File.separator + "SavesMap.ser");
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(this.getMap());
+        } catch (Exception e) {
+            System.out.println("Failed to save");
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream("Saves"+ File.separator + name+ File.separator + "SavesMe.ser");
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(this.getMe());
+        } catch (Exception e) {
+            System.out.println("Failed to save");
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream("Saves"+ File.separator + name+ File.separator + "SavesComoputer.ser");
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(this.getComputer());
+        } catch (Exception e) {
+            System.out.println("Failed to save");
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream("Saves"+ File.separator + name+ File.separator + "SavesGame.ser");
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(this);
+        } catch (Exception e) {
+            System.out.println("Failed to save");
+        }
+
+        try (FileWriter writer = new FileWriter("Saves"+ File.separator + name+ File.separator +"record.txt", false)) {
+            gamePoint+=(me.money/100)*PointsForMoney;
+            writer.write("Earned Point: \n" + this.getGamePoint());
+        } catch (IOException e ){System.out.println("Failed to save");}
+
+        System.out.println("Game is saved");
     }
 }

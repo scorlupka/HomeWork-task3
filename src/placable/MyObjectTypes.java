@@ -8,7 +8,8 @@ public enum MyObjectTypes {
     COIN("@"),
     ARTEFACT("!"),
     WALL("#"),
-    HOLYGRAIL("Y");
+    HOLYGRAIL("Y"),
+    TUNNEL("O");
 
 
     private final String symbol;

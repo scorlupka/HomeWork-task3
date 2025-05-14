@@ -33,7 +33,7 @@ public class WinLoseTest {
     @Test
     public void LoseByKillingHeroesTest() {
         // Симулируем ввод ходов
-        systemInMock.provideLines("1","lol","1","1", "0", "19", "9", "-1");
+        systemInMock.provideLines("1", "0", "19", "9", "-1");
 
         assertEquals(game.Play(),1);
     }
@@ -41,21 +41,21 @@ public class WinLoseTest {
     @Test
     public void WinByKillingHeroesTest() {
         // Симулируем ввод ходов
-        systemInMock.provideLines("1","lol","1","1","0","2","1","1","0","0","0","3", "2","1","0", "19", "8");
+        systemInMock.provideLines("1","0","2","1","1","0","0","0","3", "2","1","0", "18", "7");
 
         assertEquals(game.Play(),2);
     }
     @Test
     public void WinByCapturingTheCastle(){
         // Симулируем ввод ходов
-        systemInMock.provideLines("1","lol","1","1","0","18","9","-1","-1","-1");
+        systemInMock.provideLines("1","0","18","9","-1","-1","-1");
 
         assertEquals(game.Play(),4);
     }
     @Test
     public void LoseByCapturingTheCastle(){
         // Симулируем ввод ходов
-        systemInMock.provideLines("1","lol","1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","1","0","0","9","-1","1","0","0","0","-1");
+        systemInMock.provideLines("-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","1","0","0","9","-1","1","0","0","0","-1");
 
         assertEquals(game.Play(),3);
     }

@@ -17,6 +17,7 @@ public abstract class MyCharacter implements Serializable {
     protected int damage;
     protected int speed;
 
+
     public MyCharacter(int x, int y, int hp, int damage, int speed, MyCharacterTypes Type){
         this.x=x;
         this.y=y;

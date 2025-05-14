@@ -1,5 +1,7 @@
 package partOfGame;
 
+import placable.MyObjectTypes;
+import placable.tunnel;
 import playable.*;
 
 import org.apache.logging.log4j.LogManager;
@@ -125,7 +127,7 @@ public class Player implements Serializable {
 
         System.out.println("Type what do you want to do:\n 1 - go to any point \n 2 - inspect any point " +
                 "\n 3 - buy units \n 4 - count Army \n 5 - buy hero \n 6 - buy horse house " +
-                "\n 7 - try to dig the Holy Grail \n 8 - save the game \n -1 - have a rest");
+                "\n 7 - try to dig the Holy Grail \n 8 - save the game \n 9 - dig a tunnel \n -1 - have a rest");
 
         try {
             Scanner scanner = new Scanner(System.in);
@@ -155,6 +157,8 @@ public class Player implements Serializable {
                 case 8:
                     saveHandler.saveGame();
                     break;
+                case 9:
+                    digTunnel();
                 default:
                     System.out.println("what a wonderful day is today! You have " + money + " gold");
                     break;
@@ -166,6 +170,47 @@ public class Player implements Serializable {
         }
         prayToGod(this, castlePosition);
         return movesToReturn;
+    }
+
+    private void digTunnel(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Which playable.character you want to dig a tunnel?");
+        for (int i = 0; i < heroes.size(); i++) {
+            System.out.println(i + " " + heroes.get(i).getType() + " at point " + heroes.get(i).getX() + "," + heroes.get(i).getY());
+        }
+        try {
+            int personCnt = scanner.nextInt();
+
+            System.out.println("Type a place you want to dig out (type by enter)");
+            int x = scanner.nextInt();
+            int y = scanner.nextInt();
+
+            int x1 = heroes.get(personCnt).getX();
+            int y1 = heroes.get(personCnt).getY();
+
+            if((map.getObjects()[x1][y1].getType() == MyObjectTypes.CASTLE) || (map.getObjects()[x][y].getType() == MyObjectTypes.CASTLE)){
+                System.out.println("we cant dig a tunnel in the castle, my lord");
+                return;
+            }
+            if(x1==x && y1 == y){
+                System.out.println("we are already here, my lord");
+                return;
+            }
+
+            if(Game.Distance(heroes.get(personCnt),new int[]{x,y}) <=5){
+                map.getObjects()[x][y]= new tunnel(x,y,x1,y1);
+                map.getObjects()[x1][y1]= new tunnel(x1,y1,x,y);
+            }
+            else{
+                System.out.println("Sorry my majesty, tunnel was too long... your hero has fallen under ground");
+                heroes.get(personCnt).setHP(-1);
+            }
+            map.moveCharacterStraight(heroes.get(personCnt), x1, y1);
+        } catch (InputMismatchException e) {
+            System.out.println("I dont understand you my majesty");
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("We havent this hero my majesty");
+        }
     }
 
     private void goToPoint() {

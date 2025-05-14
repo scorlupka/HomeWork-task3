@@ -6,18 +6,19 @@ import playable.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Map {
+public class Map implements Serializable {
     private static final Logger logger = LogManager.getLogger(Map.class);
 
-    final private int width;
-    final private int height;
+    private int width;
+    private int height;
     private MyCharacter[][] characters;
     private MyObject[][] objects;
-    final private transient Random random;
+    private transient Random random;
 
     //конструктор
     public Map(MyObject[][] objects, int width, int height, int seed){
@@ -27,6 +28,8 @@ public class Map {
         this.height = height;
         this.characters = new MyCharacter[width][height];
     }
+
+    public Map(){};
 
     public Map(int size, long seed) {
         //size = 2 - big
@@ -63,6 +66,16 @@ public class Map {
         //замки игрока и соперника
         objects[0][0] = new Castle(0, 0);
         objects[width - 1][height - 1] = new Castle(width - 1, height - 1);
+        //тестовый туннель
+        tunnel tunnelPoint1 = new tunnel(3,0);
+        tunnel tunnelPoint2 = new tunnel(7,0);
+
+        tunnelPoint1.setConnectionPoint(new int[]{7,0});
+        tunnelPoint2.setConnectionPoint(new int[]{3,0});
+
+        objects[3][0]=tunnelPoint1;
+        objects[7][0]=tunnelPoint2;
+
         //артефакты и деньги
         while (true) {
             int[] placeForGrail = generateRandomCoordinates();
@@ -106,7 +119,7 @@ public class Map {
         int r = 5;
         for (int i = -r; i <= r; i++) {
             for (int j = -r; j <= r; j++) {
-                if (j * j + 3 * i * i <= r * r) {
+                if (j * j + i * i <= r * r) {
                     if (x + j >= 0 && x + j < width && y + i >= 0 && y + i < height) {
                         objectcts1[x + j][y + i] = new Zone(x + j, y + i);
                     }
@@ -125,6 +138,18 @@ public class Map {
 
     public int getHeight() {
         return height;
+    }
+
+    public void setCharacters(MyCharacter[][] characters) {
+        this.characters = characters;
+    }
+
+    public void setObjects(MyObject[][] objects) {
+        this.objects = objects;
+    }
+
+    public Random getRandom() {
+        return random;
     }
 
     public int getWidth() {
@@ -262,6 +287,26 @@ public class Map {
                         character1.increaseDamage(5);
                     }
                     objects[x1][y1] = objects[x1][y1].getUnderObject();
+                }
+                if(objects[x1][y1].getType()==MyObjectTypes.TUNNEL){
+                    System.out.println("hero has stepped in the tunnel");
+                    tunnel tunnel1= (tunnel) objects[x1][y1];
+
+                    double chance = 0.1; // 10% вероятность
+
+                    // Генерация случайного числа от 0.0 (включительно) до 1.0 (исключительно)
+                    double randomValue = random.nextDouble();
+
+                    if (randomValue < chance) {
+                        System.out.println("A tunnel has collapsed. Today your hero is sleeping with worms");
+                        objects[tunnel1.getConnectionPoint()[0]][tunnel1.getConnectionPoint()[1]] = new ground(tunnel1.getConnectionPoint()[0],tunnel1.getConnectionPoint()[1]);
+                        objects[tunnel1.getX()][tunnel1.getY()]=new ground(tunnel1.getX(),tunnel1.getY());
+
+                        character1.setHP(0);
+                    }
+                    int[] endpos=tunnel1.getConnectionPoint();
+                    return new int[]{endpos[0], endpos[1], coins};
+
                 }
             }
             //обновляем предыдущие значения

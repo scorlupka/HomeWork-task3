@@ -3,18 +3,33 @@ package partOfGame;
 import playable.*;
 import placable.*;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Computer extends Player {
+public class Computer extends Player implements Serializable {
     private int phase = 0;
 
-    transient final private Random random = new Random(5);
+    private Random random = new Random(5);
 
     //конструкторы
     public Computer(MyCharacter hero1, Map map) {
         super(hero1, map, new Game());
         this.money = 0;
+        this.random = new Random(5);
         this.castlePosition = new int[]{map.getWidth() - 1, map.getHeight() - 1};
+    }
+
+    public int getPhase() {
+        return phase;
+    }
+
+    public void setPhase(int phase) {
+        this.phase = phase;
+    }
+
+    @Override
+    public Random getRandom() {
+        return random;
     }
 
     //сделать ход
@@ -29,7 +44,9 @@ public class Computer extends Player {
             // идём собирать деньги
             if (phase == 0) {
                 int[] nearestCoin = findNearestCoin(map.getObjects(), this.heroes.get(0).getX(), this.heroes.get(0).getY());
-                money += map.moveCharacterStraight(heroes.get(0), nearestCoin[0], nearestCoin[1]);
+                try{
+                    money += map.moveCharacterStraight(heroes.get(0), nearestCoin[0], nearestCoin[1]);
+                } catch(NullPointerException e){phase = 1;}
                 if (money == 600) {
                     phase = 1;
                 }

@@ -1,6 +1,8 @@
 package placable;
 
-public abstract class MyObject {
+import java.io.Serializable;
+
+public abstract class MyObject implements Serializable {
     protected MyObject underObject;
     protected int x;
     protected int y;
@@ -15,6 +17,26 @@ public abstract class MyObject {
     }
 
     protected int movementPenalty;
+
+    public void setUnderObject(MyObject underObject) {
+        this.underObject = underObject;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void setType(MyObjectTypes type) {
+        this.type = type;
+    }
+
+    public void setMovementPenalty(int movementPenalty) {
+        this.movementPenalty = movementPenalty;
+    }
 
     public MyObjectTypes getType() {
         return type;
