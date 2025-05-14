@@ -9,7 +9,8 @@ public enum MyObjectTypes {
     ARTEFACT("!"),
     WALL("#"),
     HOLYGRAIL("Y"),
-    TUNNEL("O");
+    TUNNEL("O"),
+    BARBER("B");
 
 
     private final String symbol;

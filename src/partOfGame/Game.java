@@ -18,6 +18,8 @@ public class Game implements Saveable, Serializable{
 
     final int pointsToWin = 1;
 
+    private long currentTime;
+
      final int MoneyForUnit = 50;
     final int MoneyForHero = 150;
 
@@ -33,14 +35,28 @@ public class Game implements Saveable, Serializable{
     private int mapType=0;
     private int gamePoint;
 
+    private transient GameClock gameClock;
+
 
     public Game(Map map, Player me, Computer computer) {
         this.computer = computer;
         this.map = map;
         this.me = me;
+        gameClock = new GameClock(currentTime);
+
+        gameClock.setNPCs(createNPCs());
         gamePoint=0;
     }
 
+    public void setCurrentTime(long time){
+        this.currentTime=time;
+        gameClock.setGameTime(time);
+    }
+    public long getCurrentTime(){
+        long time = gameClock.getGameTime();
+        this.currentTime=time;
+        return time;
+    }
     public int getGamePoint() {
         return gamePoint;
     }
@@ -103,6 +119,7 @@ public class Game implements Saveable, Serializable{
     public Game(){}
 
     public int Play() {
+        gameClock.start();
 
         this.map.updateMap();
         while (true) {
@@ -433,6 +450,19 @@ public class Game implements Saveable, Serializable{
             writer.write("Earned Point: \n" + this.getGamePoint());
         } catch (IOException e ){System.out.println("Failed to save");}
 
+        try (FileWriter writer = new FileWriter("Saves"+ File.separator + name+ File.separator +"time.txt", false)) {
+            writer.write(Long.toString(gameClock.getGameTime()));
+        } catch (IOException e ){System.out.println("Failed to save");}
+
         System.out.println("Game is saved");
     }
+
+    private static NPC[] createNPCs(){
+        NPC npc1 = new NPC("Igor",0);
+        NPC npc2 = new NPC("Ivan",1);
+        NPC npc3 = new NPC("Inna",2);
+
+        return new NPC[]{npc1,npc2,npc3};
+    }
+
 }

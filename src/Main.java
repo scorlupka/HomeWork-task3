@@ -34,6 +34,9 @@ public class Main {
         }
 
     }
+
+
+
     private static void StartNewGame(String name){
         Game game = new Game();
 
@@ -58,9 +61,9 @@ public class Main {
                 game.loadCustomMap();
                 break;
         }
-
         game.Play();
     }
+
     private static Game loadGameFromComponents(String name) {
         try {
             // Загрузка карты
@@ -93,8 +96,16 @@ public class Main {
                 line = raf.readLine();
                 line = raf.readLine();
 
+                System.out.println(line + " - record");
                 game.setGamePoint(Integer.parseInt(line));
             }catch (IOException e){System.out.println("Failed to load game");}
+
+            try (RandomAccessFile raf = new RandomAccessFile("Saves"+ File.separator + name+ File.separator +"time.txt", "r");) {
+                line = raf.readLine();
+                System.out.println(line + " - time");
+                game.setCurrentTime(Long.parseLong(line));
+            }catch (IOException e){System.out.println("Failed to load game");}
+
             return game;
         } catch (Exception e) {
             System.out.println("Ошибка при загрузке компонентов: " + e.getMessage());
