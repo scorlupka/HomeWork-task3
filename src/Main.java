@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Heroes of IU3\n1 - New game\n2 - Continue game");
+        System.out.println("Heroes of IU3\n1 - New game\n2 - Continue game\n3 - Create new map");
         Scanner scanner = new Scanner(System.in);
         int decision1 = scanner.nextInt();
 
@@ -29,8 +29,9 @@ public class Main {
                 game.Play();
                 } catch(Exception e){System.out.println("Failed to load game");}
                 break;
-            default:
-                break;
+            case 3:
+                Game game = new Game();
+                game.createNewMap();
         }
 
     }
@@ -52,7 +53,7 @@ public class Main {
         me.setSaveHandler(game);
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("1 - Regular map\n2 - load custom map\n3 - Create new map");
+        System.out.println("1 - Regular map\n2 - load custom map");
         int decision = scanner.nextInt();
         switch (decision) {
             case 1:

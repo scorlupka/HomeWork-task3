@@ -16,7 +16,7 @@ import com.google.gson.GsonBuilder;
 
 public class Game implements Saveable, Serializable{
 
-    final int pointsToWin = 1;
+    final int pointsToWin = 2;
 
     private long currentTime;
 
@@ -38,13 +38,14 @@ public class Game implements Saveable, Serializable{
     private transient GameClock gameClock;
 
 
+
     public Game(Map map, Player me, Computer computer) {
         this.computer = computer;
         this.map = map;
         this.me = me;
         gameClock = new GameClock(currentTime);
 
-        gameClock.setNPCs(createNPCs());
+        gameClock.setNPCs(createNPCs(this));
         gamePoint=0;
     }
 
@@ -210,6 +211,7 @@ public class Game implements Saveable, Serializable{
     }
 
     public void createNewMap() {
+        Map map = new Map();
         System.out.println("Type size of the map");
         Scanner scanner = new Scanner(System.in);
         int width = scanner.nextInt();
@@ -217,6 +219,7 @@ public class Game implements Saveable, Serializable{
         System.out.println("Type seed for map");
         int seed = scanner.nextInt();
         MyObject[][] objectsForCustomMap = new MyObject[width][height];
+        map.setObjects(objectsForCustomMap);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 objectsForCustomMap[i][j] = new ground(i, j);
@@ -457,10 +460,10 @@ public class Game implements Saveable, Serializable{
         System.out.println("Game is saved");
     }
 
-    private static NPC[] createNPCs(){
-        NPC npc1 = new NPC("Igor",0);
-        NPC npc2 = new NPC("Ivan",1);
-        NPC npc3 = new NPC("Inna",2);
+    private static NPC[] createNPCs(Game game){
+        NPC npc1 = new NPC("Igor",0,game);
+        NPC npc2 = new NPC("Ivan",1,game);
+        NPC npc3 = new NPC("Inna",2,game);
 
         return new NPC[]{npc1,npc2,npc3};
     }

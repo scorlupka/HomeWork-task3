@@ -48,7 +48,7 @@ public class Computer extends Player implements Serializable {
                     money += map.moveCharacterStraight(heroes.get(0), nearestCoin[0], nearestCoin[1]);
                 } catch(NullPointerException e){phase = 1;}
                 if (money == 600) {
-                    phase = 1;
+                     phase = 1;
                 }
             }
             //идем на базу

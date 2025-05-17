@@ -75,6 +75,17 @@ public class Map implements Serializable {
 
         objects[3][0]=tunnelPoint1;
         objects[7][0]=tunnelPoint2;
+        //отель, барбер и кафе
+        BarberHouse barberhouse = new BarberHouse();
+        Barber barber = new Barber(10,3,barberhouse);
+        objects[10][3]=barber;
+
+        Hotel hotel = new Hotel(7,8);
+        objects[7][8]=hotel;
+
+        CafeHouse cafeHouse = new CafeHouse();
+        Cafe cafe = new Cafe(13,4,cafeHouse);
+        objects[13][4]=cafe;
 
         //артефакты и деньги
         while (true) {
@@ -266,18 +277,18 @@ public class Map implements Serializable {
 
             distanceGone += objects[x1][y1].getMovementPenalty();
 
+
+            // если клетка на которую наступили это персонаж
             if (characters[x1][y1] != null) {
                 if (characters[x1][y1].getEvil() != character1.getEvil()) {
                     Fight(character1, characters[x1][y1]);
                 }
                 return new int[]{lastX, lastY, coins};
             }
-            if (objects[x1][y1].getType() == MyObjectTypes.WALL) {
-                System.out.println("there is a wall here!");
-                return new int[]{lastX, lastY, coins};
-            }
 
             if (objects[x1][y1] != null) {
+
+                //если объект на который наступили это артефакт или монета
                 if (objects[x1][y1].getType() == MyObjectTypes.ARTEFACT || objects[x1][y1].getType() == MyObjectTypes.COIN) {
                     System.out.println(character1.getType() + " has collected " + objects[x1][y1].getType());
                     if (objects[x1][y1].getType() == MyObjectTypes.COIN) {
@@ -288,32 +299,20 @@ public class Map implements Serializable {
                     }
                     objects[x1][y1] = objects[x1][y1].getUnderObject();
                 }
-                if(objects[x1][y1].getType()==MyObjectTypes.TUNNEL){
-                    System.out.println("hero has stepped in the tunnel");
-                    tunnel tunnel1= (tunnel) objects[x1][y1];
 
-                    double chance = 0.1; // 10% вероятность
-
-                    // Генерация случайного числа от 0.0 (включительно) до 1.0 (исключительно)
-                    double randomValue = random.nextDouble();
-
-                    if (randomValue < chance) {
-                        System.out.println("A tunnel has collapsed. Today your hero is sleeping with worms");
-                        objects[tunnel1.getConnectionPoint()[0]][tunnel1.getConnectionPoint()[1]] = new ground(tunnel1.getConnectionPoint()[0],tunnel1.getConnectionPoint()[1]);
-                        objects[tunnel1.getX()][tunnel1.getY()]=new ground(tunnel1.getX(),tunnel1.getY());
-
-                        character1.setHP(0);
-                    }
-                    int[] endpos=tunnel1.getConnectionPoint();
-                    return new int[]{endpos[0], endpos[1], coins};
-
+                //если клетка на которую наступили это стена
+                if (objects[x1][y1].getType() == MyObjectTypes.WALL) {
+                    System.out.println("there is a wall here!");
+                    return new int[]{lastX, lastY, coins};
                 }
+
             }
             //обновляем предыдущие значения
             lastX=x1;
             lastY=y1;
 
         }
+
         return new int[]{x1, y1, coins};
     }
 

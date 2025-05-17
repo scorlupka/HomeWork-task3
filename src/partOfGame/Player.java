@@ -1,17 +1,15 @@
 package partOfGame;
 
-import placable.MyObjectTypes;
-import placable.tunnel;
+import placable.*;
 import playable.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
+
+import static java.util.Objects.isNull;
 
 public class Player implements Serializable {
     transient Saveable saveHandler;  // Не сохраняется
@@ -31,7 +29,7 @@ public class Player implements Serializable {
     protected ArrayList<MyCharacter> units = new ArrayList<>();
 
 
-    protected int money = 0;
+    protected int money = 100000;
 
     transient Map map;  // Не сохраняется
 
@@ -135,6 +133,8 @@ public class Player implements Serializable {
             switch (decision) {
                 case 1:
                     goToPoint();
+                    //проверяем что ход был сделан на помещение
+                    checkForStepOnBuilding();
                     break;
                 case 2:
                     inspect();
@@ -168,8 +168,119 @@ public class Player implements Serializable {
         } finally {
             map.updateMap();
         }
+
+        //проверяем что герой держит грааль и молимся
         prayToGod(this, castlePosition);
+
+        //возвращаем количество оставшихся ходов
         return movesToReturn;
+    }
+    public void checkForStepOnBuilding(){
+        int personCNT=-1;
+
+            for (int i = 0; i < heroes.size(); i++) {
+                switch (map.getObjects()[heroes.get(i).getX()][heroes.get(i).getY()].getType()) {
+                    case BARBER:
+                        goToBarber(heroes.get(i));
+                        personCNT = i;
+                        break;
+                    case CAFE:
+                        goToCafe(heroes.get(i));
+                        personCNT = i;
+                        break;
+                    case HOTEL:
+                        goToHotel(heroes.get(i));
+                        personCNT = i;
+                        break;
+                    case TUNNEL:
+                        goToTunnel(heroes.get(i));
+                        personCNT = i;
+                        return;
+                }
+            }
+
+        // выход из помещения
+        if(personCNT == -1){return;}
+
+
+        int x = heroes.get(personCNT).getX();
+        int y = heroes.get(personCNT).getY();
+
+            // Все возможные направления (включая диагональные)
+        int[][] directions = {
+                {0, 1},   // Вверх
+                {0, -1},  // Вниз
+                {1, 0},   // Вправо
+                {-1, 0},  // Влево
+                {1, 1},   // Вверх-вправо
+                {1, -1},  // Вниз-вправо
+                {-1, 1},  // Вверх-влево
+                {-1, -1}  // Вниз-влево
+        };
+
+            // Проверяем каждое направление
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            try {
+                if (isNull(map.getCharacters()[newX][newY])) {
+                    money += map.moveCharacterStraight(heroes.get(personCNT), newX, newY);
+                    return; // Выходим после первого успешного хода
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Игнорируем выход за границы карты
+            }
+        }
+    }
+    public void goToBarber(MyCharacter hero){
+        Barber barber = (Barber)(map.getObjects()[hero.getX()][hero.getY()]);
+
+        Game game = (Game)saveHandler;
+        barber.getHouse().addUser(game.getCurrentTime(),hero,this);
+
+    }
+    public void goToTunnel(MyCharacter hero){
+        Game game = (Game)saveHandler;
+
+        if(((game.getCurrentTime()%86400)/3600)>6){
+            System.out.println("You can use tunnel only at night");
+            return;
+        }
+
+        int x1= hero.getX();
+        int y1= hero.getY();
+
+        if(game.getMap().getObjects()[x1][y1].getType()==MyObjectTypes.TUNNEL) {
+            System.out.println("hero has stepped in the tunnel");
+            tunnel tunnel1 = (tunnel) game.getMap().getObjects()[x1][y1];
+
+            double chance = 0.1; // 10% вероятность
+
+            // Генерация случайного числа от 0.0 (включительно) до 1.0 (исключительно)
+            double randomValue = random.nextDouble();
+
+            if (randomValue < chance) {
+                System.out.println("A tunnel has collapsed. Today your hero is sleeping with worms");
+                game.getMap().getObjects()[tunnel1.getConnectionPoint()[0]][tunnel1.getConnectionPoint()[1]] = new ground(tunnel1.getConnectionPoint()[0], tunnel1.getConnectionPoint()[1]);
+                game.getMap().getObjects()[tunnel1.getX()][tunnel1.getY()] = new ground(tunnel1.getX(), tunnel1.getY());
+
+                hero = null;
+            }
+            else{
+                money += map.moveCharacterStraight(hero, tunnel1.getConnectionPoint()[0], tunnel1.getConnectionPoint()[1]);
+            }
+        }
+    }
+
+    public void goToCafe(MyCharacter hero){
+        Cafe cafe = (Cafe)(map.getObjects()[hero.getX()][hero.getY()]);
+
+        Game game = (Game)saveHandler;
+        cafe.getHouse().addUser(game.getCurrentTime(),hero,this);
+    }
+    public void goToHotel(MyCharacter hero){
+        System.out.println(hero.getType() + "ZzZzZz");
     }
 
     private void digTunnel(){

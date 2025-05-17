@@ -1,18 +1,33 @@
 package partOfGame;
 
+import placable.Barber;
+
+import static placable.MyObjectTypes.BARBER;
+
 public class NPC {
     private String name;
     private int shedule;
+    private BarberHouse barber;
+    private Game game;
 
     private final int[][][] availableShedules={
             { {0,8}, {1,16} },
-            { {1,11}, {2,18} },
-            { {0,6},{1,12},{2,20} }
+            { {0,8}, {2,18} },
+            { {0,8},{1,12},{2,20} }
     };
 
-    public NPC(String name, int shedule){
+    public NPC(String name, int shedule,Game game){
         this.name = name;
+        this.game=game;
         this.shedule = shedule;
+        for (int i = 0; i < game.getMap().getObjects().length; i++) {
+            for (int j = 0; j < game.getMap().getObjects()[i].length; j++) {
+                if (game.getMap().getObjects()[i][j] != null && game.getMap().getObjects()[i][j].getType() == BARBER) {
+                    Barber barber1 = (Barber)(game.getMap().getObjects()[i][j]);
+                    this.barber = barber1.getHouse();
+                }
+            }
+        }
     }
 
     public void doAction(int time){//время в часах!!!
@@ -26,7 +41,7 @@ public class NPC {
     private void executeAction(int action){
         switch (action){
             case 0:
-                goToBareber();
+                goToBarber();
                 break;
             case 1:
                 goToHotel();
@@ -39,16 +54,16 @@ public class NPC {
         }
     }
 
-    private void goToBareber(){
-        System.out.println(this.name + " go to the barber");
+    private void goToBarber(){
+        System.out.println(name + " went to barber");
+        barber.addNPC(game.getCurrentTime());
     }
 
     private void goToHotel(){
-        System.out.println(this.name + " go to the Hotel");
+
     }
 
     private void goToCafe(){
-        System.out.println(this.name + " go to the Cafe");
     }
 
 }

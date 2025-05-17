@@ -10,7 +10,9 @@ public enum MyObjectTypes {
     WALL("#"),
     HOLYGRAIL("Y"),
     TUNNEL("O"),
-    BARBER("B");
+    BARBER("B"),
+    HOTEL("K"),
+    CAFE("C");
 
 
     private final String symbol;
