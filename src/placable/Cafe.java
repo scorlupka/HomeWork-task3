@@ -1,5 +1,4 @@
 package placable;
-import partOfGame.BarberHouse;
 import partOfGame.CafeHouse;
 
 import java.io.Serializable;

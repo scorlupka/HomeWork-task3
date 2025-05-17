@@ -1,29 +1,21 @@
 package placable;
+import partOfGame.HotelHouse;
+
 import java.io.Serializable;
 
 public class Hotel extends MyObject implements Serializable {
-    private final int startWorkHour = 8;
-    private final int endWorkHour = 20;
 
-    private final int maxCustomersNum = 3;
-    private final int oneHairCutDuration = 1800;
-    public Hotel(int x, int y) {
+    HotelHouse house;
+    public Hotel(int x, int y, HotelHouse house) {
         super(x,y,MyObjectTypes.HOTEL,0);
+        this.house = house;
     }
 
-    public int getStartWorkHour() {
-        return startWorkHour;
+    public HotelHouse getHouse() {
+        return house;
     }
 
-    public int getEndWorkHour() {
-        return endWorkHour;
-    }
-
-    public int getMaxCustomersNum() {
-        return maxCustomersNum;
-    }
-
-    public int getOneHairCutDuration(){
-        return oneHairCutDuration;
+    public void setHouse(HotelHouse house) {
+        this.house = house;
     }
 }

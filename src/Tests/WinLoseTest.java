@@ -28,6 +28,8 @@ public class WinLoseTest {
         Computer computer = new Computer(skeleton, map);
 
         game = new Game(map, me, computer);
+        me.setPoints(1);
+        computer.setPoints(1);
     }
 
     @Test

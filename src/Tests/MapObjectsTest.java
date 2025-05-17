@@ -30,8 +30,7 @@ public class MapObjectsTest {
 
     @Test
     public void CollectCoinTest(){
-        crusader.setX(2);
-        systemInMock.provideLines("1","0","3","2");
+        systemInMock.provideLines("1","0","2","1");
         assertEquals(map.getObjects()[2][1].getType(), MyObjectTypes.COIN);
         me.makeMove(1);
         assertNotEquals(map.getObjects()[2][1].getType(), MyObjectTypes.COIN);

@@ -80,7 +80,8 @@ public class Map implements Serializable {
         Barber barber = new Barber(10,3,barberhouse);
         objects[10][3]=barber;
 
-        Hotel hotel = new Hotel(7,8);
+        HotelHouse hotelHouse = new HotelHouse();
+        Hotel hotel = new Hotel(7,8,hotelHouse);
         objects[7][8]=hotel;
 
         CafeHouse cafeHouse = new CafeHouse();

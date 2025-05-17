@@ -29,7 +29,7 @@ public class Player implements Serializable {
     protected ArrayList<MyCharacter> units = new ArrayList<>();
 
 
-    protected int money = 100000;
+    protected int money = 0;
 
     transient Map map;  // Не сохраняется
 
@@ -280,7 +280,10 @@ public class Player implements Serializable {
         cafe.getHouse().addUser(game.getCurrentTime(),hero,this);
     }
     public void goToHotel(MyCharacter hero){
-        System.out.println(hero.getType() + "ZzZzZz");
+        Hotel hotel = (Hotel)(map.getObjects()[hero.getX()][hero.getY()]);
+
+        Game game = (Game)saveHandler;
+        hotel.getHouse().addUser(game.getCurrentTime(),hero,this);
     }
 
     private void digTunnel(){
